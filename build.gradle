@@ -1,8 +1,8 @@
 plugins {
-    id 'java'
-    id 'application'
+    id "java"
+    id "application"
     id "org.javamodularity.moduleplugin" version "1.6.0" // For Java 9 modularity integration with Gradle
-    id 'org.beryx.jlink' version '2.17.1' // For creating a distributable image (so users don't have to install Java)
+    id "org.beryx.jlink" version "2.17.1" // For creating a distributable image (so users don"t have to install Java)
 }
 
 enum OS {
@@ -13,23 +13,23 @@ enum OS {
 }
 
 def os = OS.UNKNOWN
-def osProperty = System.getProperty("os.name").toLowerCase()
-if (osProperty.contains("mac")) {
+def osName = System.getProperty("os.name").toLowerCase()
+if (osName.contains("mac")) {
     os = OS.MAC
-} else if (osProperty.contains("windows")) {
+} else if (osName.contains("windows")) {
     os = OS.WINDOWS
-} else if (osProperty.contains("linux")) {
+} else if (osName.contains("linux")) {
     os = OS.LINUX
 }
 
-group 'net.jacobpeterson'
-version '1.0-SNAPSHOT'
+group "net.jacobpeterson"
+version "1.0-SNAPSHOT"
 
-sourceCompatibility = 11
+sourceCompatibility = 11 // Use JDK 11
 
 repositories {
     flatDir {
-        dirs 'lib'
+        dirs "lib"
     }
 
     mavenCentral()
@@ -49,19 +49,27 @@ dependencies {
             implementation name: "swt-4.15M1-gtk-linux-x86_64"
             break
         case OS.UNKNOWN:
-            throw new IllegalStateException("Cannot build with: " + osProperty)
+            throw new IllegalStateException("Cannot build with: " + osName)
             break
     }
 }
 
-mainClassName = "net.jacobpeterson.MP3me"
+mainClassName = "$moduleName/net.jacobpeterson.MP3me"
 applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 
 jlink {
-    options.addAll('--strip-debug', '--no-header-files', '--no-man-pages')
+    options.addAll("--strip-debug", "--no-header-files", "--no-man-pages")
     launcher {
-        name = 'MP3me'
+        name = "MP3me"
         jvmArgs = ["-XstartOnFirstThread"]
+    }
+
+    jpackage {
+        // $JAVA_HOME must be set to the JDK 1 home on your machine
+        jpackageHome = "/Library/Java/JavaVirtualMachines/jdk-14.jdk/Contents/Home"
+        skipInstaller = true
+        imageName = "MP3me"
+        imageOptions = ["--icon", projectDir.getAbsolutePath() + "/assets/Logo.icns"]
     }
 }
 
