@@ -1,23 +1,23 @@
 package net.jacobpeterson;
 
-import net.jacobpeterson.view.MainView;
+import net.jacobpeterson.view.MainShell;
 
 public class MP3me {
 
-    private MainView mainView;
+    private MainShell mainShell;
 
     /**
      * Instantiates a new MP3me.
      */
     public MP3me() {
-        mainView = new MainView(this);
+        mainShell = new MainShell(this);
     }
 
     /**
      * Start MP3me.
      */
     public void start() {
-        mainView.start();
+        mainShell.start();
     }
 
     /**

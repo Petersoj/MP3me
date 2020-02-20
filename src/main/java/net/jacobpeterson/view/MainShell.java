@@ -4,27 +4,30 @@ import net.jacobpeterson.MP3me;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
-public class MainView {
+public class MainShell {
 
     private final MP3me mp3me;
 
     private final Display display;
-    private final Shell mainShell;
+    private final Shell shell;
+    private SongListComposite songListComposite;
+    private FormLayout formLayout;
 
     /**
-     * Instantiates a new Main view.
+     * Instantiates a new Main shell.
      *
      * @param mp3me the MP3me
      */
-    public MainView(MP3me mp3me) {
+    public MainShell(MP3me mp3me) {
         this.mp3me = mp3me;
 
         display = new Display();
-        mainShell = new Shell();
+        shell = new Shell();
     }
 
     /**
@@ -32,15 +35,16 @@ public class MainView {
      */
     public void start() {
         this.setupShell();
+        this.setupWidgets();
+        this.setupLayout();
 
-        mainShell.open();
+        shell.open();
 
-        while (!mainShell.isDisposed()) {
+        while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) {
                 display.sleep();
             }
         }
-
         display.dispose();
 
         this.stop();
@@ -50,12 +54,15 @@ public class MainView {
      * Stops the view.
      */
     public void stop() {
-        if (!mainShell.isDisposed()) {
+        if (!shell.isDisposed()) {
             display.dispose();
         }
     }
 
-    public void setupShell() {
+    /**
+     * Set up shell.
+     */
+    private void setupShell() {
         // Position Shell in center of active monitor
         Point cursorLocation = display.getCursorLocation();
         Monitor activeMonitor = display.getPrimaryMonitor();
@@ -68,12 +75,29 @@ public class MainView {
         Rectangle monitorBounds = activeMonitor.getBounds();
         int shellWidth = (int) (0.6 * monitorBounds.width);
         int shellHeight = (int) (0.7 * monitorBounds.height);
-        mainShell.setSize(shellWidth, shellHeight);
-        mainShell.setLocation((monitorBounds.width / 2) - (shellWidth / 2) + monitorBounds.x,
-                              (monitorBounds.height / 2) - (shellHeight / 2) + monitorBounds.y);
+        shell.setSize(shellWidth, shellHeight);
+        shell.setLocation((monitorBounds.width / 2) - (shellWidth / 2) + monitorBounds.x,
+                          (monitorBounds.height / 2) - (shellHeight / 2) + monitorBounds.y);
 
         // Set background black
-        mainShell.setBackground(new Color(display, 0, 0, 0));
+        shell.setBackground(new Color(display, 0, 0, 0));
+    }
+
+    /**
+     * Set up widgets.
+     */
+    private void setupWidgets() {
+
+    }
+
+    /**
+     * Set up layout.
+     */
+    private void setupLayout() {
+        formLayout = new FormLayout();
+
+        shell.setLayout(formLayout);
+        shell.layout();
     }
 
     /**
@@ -95,11 +119,11 @@ public class MainView {
     }
 
     /**
-     * Gets main shell.
+     * Gets the shell.
      *
-     * @return the main shell
+     * @return the shell
      */
-    public Shell getMainShell() {
-        return mainShell;
+    public Shell getShell() {
+        return shell;
     }
 }
