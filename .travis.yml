@@ -1,0 +1,75 @@
+# See https://github.com/DanySK/Gravis-CI for how OpenJDK installation on multi-OS TravisCI works
+
+language: shell
+
+os:
+  - osx
+  - windows
+  - linux
+
+# Version of ubuntu to use
+dist: xenial
+
+# Version of macOS to use
+osx_image: xcode9.4
+
+env:
+  global:
+    - GRAVIS_REPO="https://github.com/Petersoj/Gravis-CI.git" # My forked repo of Gravis-CI to maintain same script
+    - GRAVIS="$HOME/gravis"
+    - JDK_11="openjdk@1.11.0" # For Gravis-CI to download Jabba and install JDK 11
+    - JDK_14="openjdk@1.14.0" # For Gravis-CI to download Jabba and install JDK 14
+
+before_install:
+  - |
+    # Get Gravis-CI to download Jabba for JDK installation
+    travis_retry git clone --depth 1 $GRAVIS_REPO $GRAVIS
+
+    # Install JDK
+    export JDK=$JDK_11
+    source $GRAVIS/install-jdk
+
+    # Get OpenJDK 14 for jpackage
+    export JDK=$JDK_14
+    source $GRAVIS/install-jdk
+    export JAVA_HOME_14="$JAVA_HOME"
+    echo "JAVA_HOME_14=$JAVA_HOME_14"
+
+    # Set JDK back to 11
+    export JDK=$JDK_11
+    source $GRAVIS/install-jdk
+
+    # We need to install Wix toolset in order to create a windows installer. Mac and Linux don't require this.
+    if [ "${TRAVIS_OS_NAME}" = "windows" ];
+    then
+      choco install nuget.commandline
+      nuget install WiX.Toolset -Version 3.9.1208.0
+      export PATH="$PATH:$TRAVIS_BUILD_DIR/WiX.Toolset.3.9.1208.0/tools/wix/"
+    fi
+
+script:
+  - |
+    ./gradlew build jpackage
+    find . # DELETE LATER
+
+deploy:
+  provider: releases
+  token: ${GH_TOKEN}
+  skip_cleanup: true
+  name: ${TRAVIS_TAG}
+  file:
+    - ./build/jpackage/mac/MP3me.app.zip
+    - ./build/jpackage/windows/MP3me.exe
+    - ./build/jpackage/linux/MP3me.zip
+  on:
+    tags: true
+    branch: test
+
+before_cache:
+  - $GRAVIS/clean-gradle-cache
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.jabba/

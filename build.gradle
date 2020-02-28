@@ -1,4 +1,7 @@
-import java.nio.file.*
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -35,6 +38,7 @@ if (osName.contains("mac")) {
 
 group "net.jacobpeterson"
 version "1.0-SNAPSHOT"
+description = "Download Youtube, Soundcloud, and others as a song (add album cover image, artist name, and more)."
 
 sourceCompatibility = 11 // Use JDK 11
 
@@ -63,8 +67,9 @@ if (os == OS.MAC) {
     applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 }
 
+String jpackageInstallerExtension = "exe"
 jlink {
-    options.addAll("--strip-debug", "--compress", "1", "--no-header-files", "--no-man-pages")
+    options.addAll("--strip-debug", "--no-header-files", "--no-man-pages")
 
     launcher {
         name = "MP3me"
@@ -93,11 +98,11 @@ jlink {
         String iconPath
         if (os == OS.MAC) {
             iconPath = "assets" + File.separator + "Logo.icns"
-            skipInstaller = true // Just generate a .app
+            skipInstaller = true // Just generate a .app image
         } else if (os == OS.WINDOWS) {
             iconPath = "assets" + File.separator + "Logo.ico"
-            installerType = "exe"
-            installerOptions = ["--win-per-user-install", "--win-menu"]
+            installerType = jpackageInstallerExtension = "exe"
+            installerOptions = ["--win-per-user-install", "--win-menu", "--win-shortcut"]
         } else if (os == OS.LINUX) {
             iconPath = "assets" + File.separator + "Logo.png"
             skipInstaller = true // Just generate an image/shell script
@@ -106,30 +111,42 @@ jlink {
         // Set jpackage options
         jpackageHome = java14Home
         outputDir = "jpackage" + File.separator + os.name().toLowerCase()
-        imageOptions = ["--icon", new File(projectDir.getAbsolutePath(), iconPath).getAbsolutePath()]
-        description = "Download Youtube, Soundcloud, and others as a song (add album cover image, artist name, and more)."
         appVersion = version.toString().replace("-SNAPSHOT", "")
+        imageOptions = ["--icon", new File(projectDir.getAbsolutePath(), iconPath).getAbsolutePath()]
     }
 }
 
-task compressJpackage() {
+task packageJpackage() {
     doLast {
-        String jpackageOutputPath = buildDir.toString() + File.separator +
-                "jpackage" + File.separator +
-                os.name().toLowerCase() + File.separator +
-                project.name
+        File jpackageOutputDir = new File(buildDir, "jpackage/" + os.name().toLowerCase())
 
         if (os == OS.MAC) {
-            compressDirectory(Paths.get(jpackageOutputPath + ".app"))
+            File jpackageMacImage = new File(jpackageOutputDir, project.name + ".app")
+
+            logger.info("Codesigning mac .app")
+            exec {
+                commandLine "codesign", "--force", "--deep", "--sign", "-", jpackageMacImage.getAbsolutePath()
+            }
+
+            logger.info("Compressing app image into zip file: " + jpackageMacImage.toPath())
+            compressDirectory(jpackageMacImage.toPath())
         } else if (os == OS.WINDOWS) {
-            compressFile(Paths.get(jpackageOutputPath + ".exe"))
+            File jpackageWindowsInstaller = new File(jpackageOutputDir, project.name + "-" +
+                    version.toString().replace("-SNAPSHOT", "") + "." + jpackageInstallerExtension)
+
+            logger.info("Renaming Windows installer")
+            Files.move(jpackageWindowsInstaller.toPath(),
+                    jpackageWindowsInstaller.toPath().resolveSibling(project.name + "." + jpackageInstallerExtension))
         } else if (os == OS.LINUX) {
-            compressDirectory(Paths.get(jpackageOutputPath))
+            File jpackageLinuxImage = new File(jpackageOutputDir, project.name)
+
+            logger.info("Compressing app image into zip file: " + jpackageLinuxImage.toPath())
+            compressDirectory(jpackageLinuxImage.toPath())
         }
     }
 }
 
-jpackage.finalizedBy(compressJpackage)
+jpackage.finalizedBy(packageJpackage)
 
 //
 // Helper methods below here
@@ -168,7 +185,7 @@ static void compressDirectory(Path dirPath) {
                 } catch (IOException e) {
                     e.printStackTrace()
                 }
-                return FileVisitResult.CONTINUE;
+                return FileVisitResult.CONTINUE
             }
         })
         zipOutputStream.close()

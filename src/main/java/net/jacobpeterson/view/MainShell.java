@@ -39,6 +39,7 @@ public class MainShell {
         this.setupLayout();
 
         shell.open();
+        shell.forceActive();
 
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) {
@@ -73,8 +74,8 @@ public class MainShell {
             }
         }
         Rectangle monitorBounds = activeMonitor.getBounds();
-        int shellWidth = (int) (0.6 * monitorBounds.width);
-        int shellHeight = (int) (0.7 * monitorBounds.height);
+        int shellWidth = (int) (0.65 * monitorBounds.width);
+        int shellHeight = (int) (0.65 * monitorBounds.height);
         shell.setSize(shellWidth, shellHeight);
         shell.setLocation((monitorBounds.width / 2) - (shellWidth / 2) + monitorBounds.x,
                           (monitorBounds.height / 2) - (shellHeight / 2) + monitorBounds.y);
