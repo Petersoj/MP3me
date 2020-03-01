@@ -2,7 +2,6 @@ package net.jacobpeterson.view;
 
 import net.jacobpeterson.MP3me;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
@@ -99,11 +98,9 @@ public class MainShell {
         FormData blurredImageBackgroundFormData = new FormData();
         blurredImageBackgroundFormData.top = new FormAttachment(0);
         blurredImageBackgroundFormData.right = new FormAttachment(100);
-        blurredImageBackgroundFormData.bottom = new FormAttachment(100);
+        blurredImageBackgroundFormData.bottom = new FormAttachment(90);
         blurredImageBackgroundFormData.left = new FormAttachment(0);
         blurredImageBackground.setLayoutData(blurredImageBackgroundFormData);
-
-        blurredImageBackground.setImage(new Image(display, "/Users/jacob/Downloads/stoney.jpg"));
 
         // After all widgets are setup and laid out, layout the shell.
         shell.layout();

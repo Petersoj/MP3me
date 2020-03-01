@@ -1,6 +1,5 @@
 package net.jacobpeterson.view;
 
-import net.jacobpeterson.util.ImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -13,6 +12,7 @@ public class BlurredImageBackground extends Canvas implements PaintListener {
 
     private MainShell mainShell;
     private Image image;
+    public int blurValue = 1;
 
     /**
      * Instantiates a new Blurred image background.
@@ -34,9 +34,6 @@ public class BlurredImageBackground extends Canvas implements PaintListener {
 
         GC gc = paintEvent.gc;
         Rectangle bounds = this.getBounds();
-
-        Image blurredImage = new Image(mainShell.getDisplay(), ImageUtil.blur(image.getImageData(), 9, 3));
-        gc.drawImage(blurredImage, 0, 0);
     }
 
     /**
