@@ -2,8 +2,11 @@ package net.jacobpeterson.view;
 
 import net.jacobpeterson.MP3me;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
@@ -15,8 +18,9 @@ public class MainShell {
 
     private final Display display;
     private final Shell shell;
+    private final FormLayout formLayout;
+    private BlurredImageBackground blurredImageBackground;
     private SongListComposite songListComposite;
-    private FormLayout formLayout;
 
     /**
      * Instantiates a new Main shell.
@@ -28,6 +32,7 @@ public class MainShell {
 
         display = new Display();
         shell = new Shell();
+        formLayout = new FormLayout();
     }
 
     /**
@@ -36,23 +41,21 @@ public class MainShell {
     public void start() {
         this.setupShell();
         this.setupWidgets();
-        this.setupLayout();
 
         shell.open();
-        shell.forceActive();
+        shell.setActive();
 
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) {
                 display.sleep();
             }
         }
-        display.dispose();
 
         this.stop();
     }
 
     /**
-     * Stops the view.
+     * Stops all the views.
      */
     public void stop() {
         if (!shell.isDisposed()) {
@@ -73,6 +76,7 @@ public class MainShell {
                 break;
             }
         }
+
         Rectangle monitorBounds = activeMonitor.getBounds();
         int shellWidth = (int) (0.65 * monitorBounds.width);
         int shellHeight = (int) (0.65 * monitorBounds.height);
@@ -82,22 +86,26 @@ public class MainShell {
 
         // Set background black
         shell.setBackground(new Color(display, 0, 0, 0));
+
+        shell.setLayout(formLayout);
     }
 
     /**
      * Set up widgets.
      */
     private void setupWidgets() {
+        blurredImageBackground = new BlurredImageBackground(this);
 
-    }
+        FormData blurredImageBackgroundFormData = new FormData();
+        blurredImageBackgroundFormData.top = new FormAttachment(0);
+        blurredImageBackgroundFormData.right = new FormAttachment(100);
+        blurredImageBackgroundFormData.bottom = new FormAttachment(100);
+        blurredImageBackgroundFormData.left = new FormAttachment(0);
+        blurredImageBackground.setLayoutData(blurredImageBackgroundFormData);
 
-    /**
-     * Set up layout.
-     */
-    private void setupLayout() {
-        formLayout = new FormLayout();
+        blurredImageBackground.setImage(new Image(display, "/Users/jacob/Downloads/stoney.jpg"));
 
-        shell.setLayout(formLayout);
+        // After all widgets are setup and laid out, layout the shell.
         shell.layout();
     }
 

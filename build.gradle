@@ -24,14 +24,14 @@ enum OS {
     UNKNOWN
 }
 
-OS os = OS.UNKNOWN;
-String osName = System.getProperty("os.name").toLowerCase();
+OS os = OS.UNKNOWN
+String osName = System.getProperty("os.name").toLowerCase()
 if (osName.contains("mac")) {
-    os = OS.MAC;
+    os = OS.MAC
 } else if (osName.contains("windows")) {
-    os = OS.WINDOWS;
+    os = OS.WINDOWS
 } else if (osName.contains("linux")) {
-    os = OS.LINUX;
+    os = OS.LINUX
 } else {
     throw new IllegalStateException("Cannot build with: " + osName)
 }
