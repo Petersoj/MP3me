@@ -1,11 +1,14 @@
 package net.jacobpeterson.util;
 
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.RGBA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ImageUtil {
 
@@ -145,7 +148,9 @@ public class ImageUtil {
          * a new pixel is added to the bottom of the scope (by adding its RGB).
          * In this sense, the summing scope is moving downward.
          */
-        if (radius < 1) { return originalImageData; }
+        if (radius < 1) {
+            return originalImageData;
+        }
         // prepare new image data with 24-bit direct palette to hold blurred copy of image
         ImageData newImageData = new ImageData(originalImageData.width, originalImageData.height, 24,
                                                new PaletteData(0xFF, 0xFF00, 0xFF0000));
@@ -167,23 +172,25 @@ public class ImageUtil {
         int targetRow = 0; // row with RGB averages to be determined
         int bottomSumBoundary = 0; // current bottom row of summed values scope
         int numRows = 0; // number of rows included in current summing scope
-        for (int i = 0; i < newImageData.width; i++) { rowRGBSums[i] = new RGB(0, 0, 0); }
+        for (int i = 0; i < newImageData.width; i++) {
+            rowRGBSums[i] = new RGB(0, 0, 0);
+        }
         while (targetRow < newImageData.height) {
             if (bottomSumBoundary < newImageData.height) {
                 do {
                     // sum pixel RGB values for each column in our radius scope
                     for (int col = 0; col < newImageData.width; col++) {
                         rowRGBSums[col].red +=
-                                ((RGB[]) rowCache.get(bottomSumBoundary - cacheStartIndex))[col].red;
+                                rowCache.get(bottomSumBoundary - cacheStartIndex)[col].red;
                         rowRGBSums[col].green +=
-                                ((RGB[]) rowCache.get(bottomSumBoundary - cacheStartIndex))[col].green;
+                                rowCache.get(bottomSumBoundary - cacheStartIndex)[col].green;
                         rowRGBSums[col].blue +=
-                                ((RGB[]) rowCache.get(bottomSumBoundary - cacheStartIndex))[col].blue;
+                                rowCache.get(bottomSumBoundary - cacheStartIndex)[col].blue;
                     }
                     numRows++;
                     bottomSumBoundary++; // move bottom scope boundary lower
-                    if (bottomSumBoundary < newImageData.height
-                        && (bottomSumBoundary - cacheStartIndex) > (radius * 2)) {
+                    if (bottomSumBoundary < newImageData.height &&
+                        (bottomSumBoundary - cacheStartIndex) > (radius * 2)) {
                         // grow cache
                         rowCache.add(rowCache.size(), blurRow(originalImageData, bottomSumBoundary, radius));
                     }
@@ -193,11 +200,11 @@ public class ImageUtil {
                 // subtract values of top row from sums as scope of summed values moves down
                 for (int col = 0; col < newImageData.width; col++) {
                     rowRGBSums[col].red -=
-                            ((RGB[]) rowCache.get(topSumBoundary - cacheStartIndex))[col].red;
+                            rowCache.get(topSumBoundary - cacheStartIndex)[col].red;
                     rowRGBSums[col].green -=
-                            ((RGB[]) rowCache.get(topSumBoundary - cacheStartIndex))[col].green;
+                            rowCache.get(topSumBoundary - cacheStartIndex)[col].green;
                     rowRGBSums[col].blue -=
-                            ((RGB[]) rowCache.get(topSumBoundary - cacheStartIndex))[col].blue;
+                            rowCache.get(topSumBoundary - cacheStartIndex)[col].blue;
                 }
                 numRows--;
                 topSumBoundary++; // move top scope boundary lower
@@ -206,12 +213,9 @@ public class ImageUtil {
             }
             // calculate each column's RGB-averaged pixel
             for (int col = 0; col < newImageData.width; col++) {
-                rowRGBAverages[col] = newImageData.palette.getPixel(
-                        new RGB(
-                                rowRGBSums[col].red / numRows,
-                                rowRGBSums[col].green / numRows,
-                                rowRGBSums[col].blue / numRows)
-                                                                   );
+                rowRGBAverages[col] = newImageData.palette.getPixel(new RGB(rowRGBSums[col].red / numRows,
+                                                                            rowRGBSums[col].green / numRows,
+                                                                            rowRGBSums[col].blue / numRows));
             }
             // replace original pixels
             newImageData.setPixels(0, targetRow, newImageData.width, rowRGBAverages, 0);
@@ -316,5 +320,183 @@ public class ImageUtil {
         }
 
         return sizes;
+    }
+
+    /**
+     * Gets dominant colors of an image. Note that this ignores alpha channels.
+     *
+     * @param imageData the image data
+     * @param amount    the amount of dominant colors
+     *
+     * @return the dominant colors with key being the color and the value being the number of times it showed up
+     */
+    public static HashMap<RGB, Integer> getDominantColors(ImageData imageData, int amount) {
+        HashMap<RGB, Integer> dominantColors = new HashMap<>(amount);
+        int[] pixels = new int[imageData.width * imageData.height];
+        imageData.getPixels(0, 0, pixels.length, pixels, 0);
+
+        for (int y = 0; y < imageData.height; y++) {
+            for (int x = 0; x < imageData.width; x++) {
+                RGB currentRGB = imageData.palette.getRGB(pixels[y * imageData.width + x]);
+
+                if (isGrayColor(currentRGB, 10)) {
+                    continue;
+                }
+
+                if (dominantColors.containsKey(currentRGB)) {
+                    dominantColors.replace(currentRGB, dominantColors.get(currentRGB) + 1);
+                } else if (dominantColors.size() < amount) {
+                    dominantColors.put(currentRGB, 1);
+                } else {
+                    // Get the closest color in dominant colors, take average of the current RGB and the closest RGB,
+                    // and then replace it in the map and add one to count
+                    RGB closestRGB = null;
+                    double closestRGBDistance = Integer.MAX_VALUE;
+                    for (RGB dominantRGB : dominantColors.keySet()) {
+                        double RGBdistance = colorDistance(currentRGB, dominantRGB);
+                        if (RGBdistance <= closestRGBDistance) {
+                            closestRGB = dominantRGB;
+                            closestRGBDistance = RGBdistance;
+                        }
+                    }
+
+                    int count = dominantColors.remove(closestRGB);
+                    dominantColors.put(averageColor(currentRGB, closestRGB), count + 1);
+                }
+            }
+        }
+
+        return dominantColors;
+    }
+
+    /**
+     * Compute the distance between two colors (like the distance in 4D space where the RGBA values of the colors are
+     * the w, x, y, z coordinates).
+     *
+     * @param first  the first
+     * @param second the second
+     *
+     * @return the double
+     */
+    public static double colorDistance(Color first, Color second) {
+        return Math.sqrt(Math.pow(second.getRed() - first.getRed(), 2) +
+                         Math.pow(second.getGreen() - first.getGreen(), 2) +
+                         Math.pow(second.getBlue() - first.getBlue(), 2) +
+                         Math.pow(second.getAlpha() - first.getAlpha(), 2));
+    }
+
+    /**
+     * Compute the distance between two RGBAs (like the distance in 4D space where the RGBA values of the colors are the
+     * w, x, y, z coordinates).
+     *
+     * @param first  the first
+     * @param second the second
+     *
+     * @return the double
+     */
+    public static double colorDistance(RGBA first, RGBA second) {
+        return Math.sqrt(Math.pow(second.rgb.red - first.rgb.red, 2) +
+                         Math.pow(second.rgb.green - first.rgb.green, 2) +
+                         Math.pow(second.rgb.blue - first.rgb.blue, 2) +
+                         Math.pow(second.alpha - first.alpha, 2));
+    }
+
+    /**
+     * Compute the distance between two RGBs (like the distance in 3D space where the RGB values of the colors are the
+     * x, y, and z coordinates).
+     *
+     * @param first  the first
+     * @param second the second
+     *
+     * @return the double
+     */
+    public static double colorDistance(RGB first, RGB second) {
+        return Math.sqrt(Math.pow(second.red - first.red, 2) +
+                         Math.pow(second.green - first.green, 2) +
+                         Math.pow(second.blue - first.blue, 2));
+    }
+
+    /**
+     * Average two colors (including alpha channel).
+     *
+     * @param first  the first
+     * @param second the second
+     *
+     * @return the color
+     */
+    public static Color averageColor(Color first, Color second) {
+        return new Color(first.getDevice(), (first.getRed() - second.getRed()) / 2,
+                         (first.getGreen() + second.getGreen()) / 2,
+                         (first.getBlue() + second.getBlue()) / 2,
+                         (first.getAlpha() + second.getAlpha()) / 2);
+    }
+
+    /**
+     * Average two RGBAs (including alpha channel).
+     *
+     * @param first  the first
+     * @param second the second
+     *
+     * @return the color
+     */
+    public static RGBA averageColor(RGBA first, RGBA second) {
+        return new RGBA((first.rgb.red + second.rgb.red) / 2,
+                        (first.rgb.green + second.rgb.green) / 2,
+                        (first.rgb.blue + second.rgb.blue) / 2,
+                        (first.alpha + second.alpha) / 2);
+    }
+
+    /**
+     * Average two RGBs.
+     *
+     * @param first  the first
+     * @param second the second
+     *
+     * @return the rgb
+     */
+    public static RGB averageColor(RGB first, RGB second) {
+        return new RGB((first.red + second.red) / 2,
+                       (first.green + second.green) / 2,
+                       (first.blue + second.blue) / 2);
+    }
+
+    /**
+     * Determines if a colors RGB values are within a certain tolerance of each other.
+     *
+     * @param color     the color
+     * @param tolerance the tolerance (RGB channel difference)
+     *
+     * @return the boolean
+     */
+    public static boolean isGrayColor(Color color, int tolerance) {
+        return Math.abs(color.getRed() - color.getGreen()) <= tolerance &&
+               Math.abs(color.getRed() - color.getBlue()) <= tolerance &&
+               Math.abs(color.getGreen() - color.getBlue()) <= tolerance;
+    }
+
+    /**
+     * Determines if a colors RGB values are within a certain tolerance of each other.
+     *
+     * @param color     the color
+     * @param tolerance the tolerance (RGB channel difference)
+     *
+     * @return the boolean
+     */
+    public static boolean isGrayColor(RGBA color, int tolerance) {
+        return isGrayColor(color.rgb, tolerance);
+    }
+
+    /**
+     * Determines if a colors RGB values are within a certain tolerance of each other.
+     *
+     * @param color     the color
+     * @param tolerance the tolerance (RGB channel difference)
+     *
+     * @return the boolean
+     */
+    public static boolean isGrayColor(RGB color, int tolerance) {
+        return Math.abs(color.red - color.green) <= tolerance &&
+               Math.abs(color.red - color.blue) <= tolerance &&
+               Math.abs(color.green - color.blue) <= tolerance;
     }
 }
