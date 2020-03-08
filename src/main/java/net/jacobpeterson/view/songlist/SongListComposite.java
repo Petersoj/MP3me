@@ -2,14 +2,14 @@ package net.jacobpeterson.view.songlist;
 
 import net.jacobpeterson.view.MainShell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Composite;
 
-public class SongListComposite extends ScrolledComposite implements PaintListener {
+public class SongListComposite extends Composite implements PaintListener {
 
     private final MainShell mainShell;
     private final Color blackColor;
@@ -20,7 +20,7 @@ public class SongListComposite extends ScrolledComposite implements PaintListene
      * @param mainShell the main shell
      */
     public SongListComposite(MainShell mainShell) {
-        super(mainShell.getShell(), SWT.V_SCROLL);
+        super(mainShell.getShell(), SWT.TRANSPARENT);
 
         this.mainShell = mainShell;
         this.blackColor = mainShell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
