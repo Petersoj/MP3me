@@ -1,7 +1,10 @@
 package net.jacobpeterson.view;
 
 import net.jacobpeterson.MP3me;
-import org.eclipse.swt.graphics.Color;
+import net.jacobpeterson.view.songlist.SongListComposite;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -76,18 +79,18 @@ public class MainShell {
                 break;
             }
         }
-
         Rectangle monitorBounds = activeMonitor.getBounds();
         int shellWidth = (int) (0.65 * monitorBounds.width);
         int shellHeight = (int) (0.65 * monitorBounds.height);
         shell.setSize(shellWidth, shellHeight);
         shell.setLocation((monitorBounds.width / 2) - (shellWidth / 2) + monitorBounds.x,
                           (monitorBounds.height / 2) - (shellHeight / 2) + monitorBounds.y);
-
-        // Set background black
-        shell.setBackground(new Color(display, 0, 0, 0));
-
+        shell.setMinimumSize(500, 400);
         shell.setLayout(formLayout);
+
+        // Set background transparent for all components
+        shell.setBackground(display.getSystemColor(SWT.COLOR_TRANSPARENT));
+        shell.setBackgroundMode(SWT.INHERIT_FORCE);
     }
 
     /**
@@ -95,7 +98,6 @@ public class MainShell {
      */
     private void setupWidgets() {
         blurredImageBackground = new BlurredImageBackground(this);
-
         FormData blurredImageBackgroundFormData = new FormData();
         blurredImageBackgroundFormData.top = new FormAttachment(0);
         blurredImageBackgroundFormData.right = new FormAttachment(100);
@@ -103,10 +105,30 @@ public class MainShell {
         blurredImageBackgroundFormData.left = new FormAttachment(0);
         blurredImageBackground.setLayoutData(blurredImageBackgroundFormData);
 
-        // Testing
-        blurredImageBackground.setBlurredImage(new Image(display, "/Users/jacob/Downloads/stoney.jpg"), 15);
+        // Testing:
+        blurredImageBackground.setBlurredImage(new Image(display, "/Users/Jacob/Downloads/stoney.jpg"), 20);
 
-        // After all widgets are setup and laid out, layout the shell.
+        songListComposite = new SongListComposite(this);
+        final FormData songListCompositeFormData = new FormData();
+        songListCompositeFormData.top = new FormAttachment(0);
+        songListCompositeFormData.right = new FormAttachment(25);
+        songListCompositeFormData.bottom = new FormAttachment(100);
+        songListCompositeFormData.left = new FormAttachment(5);
+        shell.addControlListener(new ControlAdapter() {
+            // This is for setting the top and bottom offset from the shell top and bottom to be exactly the same
+            // as the left percent offset so the songListComposite is evenly laid out.
+            @Override
+            public void controlResized(ControlEvent e) {
+                int leftOffset = songListComposite.getBounds().x;
+                songListCompositeFormData.top.offset = leftOffset;
+                songListCompositeFormData.bottom.offset = -leftOffset;
+            }
+        });
+        songListComposite.setLayoutData(songListCompositeFormData);
+
+        // After all widgets are setup and laid out, layout the shell and z-order.
+        songListComposite.moveAbove(blurredImageBackground);
+
         shell.layout();
     }
 

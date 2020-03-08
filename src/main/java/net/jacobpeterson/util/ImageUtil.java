@@ -1,6 +1,5 @@
 package net.jacobpeterson.util;
 
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
@@ -331,7 +330,12 @@ public class ImageUtil {
      * @return the dominant colors with key being the color and the value being the number of times it showed up
      */
     public static HashMap<RGB, Integer> getDominantColors(ImageData imageData, int amount) {
-        HashMap<RGB, Integer> dominantColors = new HashMap<>(amount);
+        if (amount < 1) {
+            throw new IllegalArgumentException("Amount must be great than 1!");
+        }
+
+        HashMap<RGB, Integer> rgbCounts = new HashMap<>();
+
         int[] pixels = new int[imageData.width * imageData.height];
         imageData.getPixels(0, 0, pixels.length, pixels, 0);
 
@@ -339,55 +343,116 @@ public class ImageUtil {
             for (int x = 0; x < imageData.width; x++) {
                 RGB currentRGB = imageData.palette.getRGB(pixels[y * imageData.width + x]);
 
-                if (isGrayColor(currentRGB, 10)) {
-                    continue;
-                }
-
-                if (dominantColors.containsKey(currentRGB)) {
-                    dominantColors.replace(currentRGB, dominantColors.get(currentRGB) + 1);
-                } else if (dominantColors.size() < amount) {
-                    dominantColors.put(currentRGB, 1);
+                if (rgbCounts.containsKey(currentRGB)) {
+                    rgbCounts.replace(currentRGB, rgbCounts.get(currentRGB) + 1);
                 } else {
-                    // Get the closest color in dominant colors, take average of the current RGB and the closest RGB,
-                    // and then replace it in the map and add one to count
-                    RGB closestRGB = null;
-                    double closestRGBDistance = Integer.MAX_VALUE;
-                    for (RGB dominantRGB : dominantColors.keySet()) {
-                        double RGBdistance = colorDistance(currentRGB, dominantRGB);
-                        if (RGBdistance <= closestRGBDistance) {
-                            closestRGB = dominantRGB;
-                            closestRGBDistance = RGBdistance;
-                        }
-                    }
-
-                    int count = dominantColors.remove(closestRGB);
-                    dominantColors.put(averageColor(currentRGB, closestRGB), count + 1);
+                    rgbCounts.put(currentRGB, 1);
                 }
             }
         }
 
+        rgbCounts = MapUtil.sortByValue(rgbCounts, MapUtil.SortOrder.DESCENDING, null, Integer::compareTo);
+
+        if (rgbCounts.size() <= amount) { // Don't do any dominance grouping
+            return rgbCounts;
+        }
+
+        throw new UnsupportedOperationException("Not implemented yet!");
+
+        /*
+        Attempt using weighted range:
+        // Get the weighted range
+        int weightedGray1 = 127;
+        int weightedGray2 = 0;
+        for (RGB rgb : rgbCounts.keySet()) {
+            Integer rgbCount = rgbCounts.get(rgb);
+            double weight = (double) rgbCount / pixels.length;
+            int weightedGray = (int) (grayscale(rgb).red * weight);
+            if (weightedGray > weightedGray1) {
+                weightedGray1 += weightedGray;
+            } else if (weightedGray < weightedGray2) {
+                weightedGray2 -= weightedGray;
+            } else { // weightedGray is in between the weightedGray1 and the weightedGray2
+                double midpoint = weightedGray1 - weightedGray2;
+                if (weightedGray > midpoint) {
+                    weightedGray1 -= weightedGray;
+                } else if (weightedGray < midpoint) {
+                    weightedGray2 += weightedGray;
+                } // If weightedGray is equal to midpoint don't do anything
+            }
+        }
+        int weightedRange = Math.abs(weightedGray2 - weightedGray1);
+        System.out.println(weightedGray1);
+        System.out.println(weightedGray2);
+        System.out.println(weightedRange);
+         */
+
+        /*
+        Attempt using some other method:
+        LinkedHashMap<RGB, Integer> dominantColors = new LinkedHashMap<>(amount);
+
+        // Get the weighted range
+        int weightedRange = 0;
+        int previousWeightedGray = -1;
+        for (RGB rgb : rgbCounts.keySet()) {
+            Integer rgbCount = rgbCounts.get(rgb);
+            double weight = (double) rgbCount / pixels.length;
+            int weightedGray = (int) (grayscale(rgb).red * weight);
+
+            if (previousWeightedGray == -1) {
+                previousWeightedGray = weightedGray;
+            } else {
+                double distance = Math.abs(weightedGray - previousWeightedGray);
+                weightedRange += distance * weight;
+            }
+        }
+
+        System.out.println(weightedRange);
+
+        // Larger the amount then the smaller the grouping distance.
+        double groupingDistance = (double) weightedRange / amount;
+
+        for (RGB rgb : rgbCounts.keySet()) {
+            Integer rgbCount = rgbCounts.get(rgb);
+            double weight = (double) rgbCount / pixels.length;
+            // Less amount desired means small distances between high weight colors will be grouped and large
+            // distances between high weight colors will not be grouped
+            // Whether or not to include another color in the grouping distance is a function of that color's weight,
+            // the amount desired, and the current color's weight
+        }
+
         return dominantColors;
+        */
+        // Grouping distance should be a function of 'amount', the distance, and the weight, so as to group colors when
+        // they're close enough, but not group them if their weights are significant enough depending on the total
+        // 'amount' desired.
     }
 
     /**
-     * Compute the distance between two colors (like the distance in 4D space where the RGBA values of the colors are
-     * the w, x, y, z coordinates).
+     * Gets the average color of an image.
      *
-     * @param first  the first
-     * @param second the second
+     * @param imageData the image data
      *
-     * @return the double
+     * @return the average color
      */
-    public static double colorDistance(Color first, Color second) {
-        return Math.sqrt(Math.pow(second.getRed() - first.getRed(), 2) +
-                         Math.pow(second.getGreen() - first.getGreen(), 2) +
-                         Math.pow(second.getBlue() - first.getBlue(), 2) +
-                         Math.pow(second.getAlpha() - first.getAlpha(), 2));
+    public static RGB getAverageColor(ImageData imageData) {
+        int[] pixels = new int[imageData.width * imageData.height];
+        imageData.getPixels(0, 0, pixels.length, pixels, 0);
+        int redSum = 0, greenSum = 0, blueSum = 0;
+
+        for (int index = 0; index < pixels.length; index++) {
+            RGB indexRGB = imageData.palette.getRGB(pixels[index]);
+            redSum += indexRGB.red;
+            greenSum += indexRGB.green;
+            blueSum += indexRGB.blue;
+        }
+
+        return new RGB(redSum / pixels.length, greenSum / pixels.length, blueSum / pixels.length);
     }
 
     /**
-     * Compute the distance between two RGBAs (like the distance in 4D space where the RGBA values of the colors are the
-     * w, x, y, z coordinates).
+     * Compute the distance between two RGBAs (the distance in 4D space where the RGBA values of the colors are the w,
+     * x, y, z coordinates).
      *
      * @param first  the first
      * @param second the second
@@ -402,8 +467,8 @@ public class ImageUtil {
     }
 
     /**
-     * Compute the distance between two RGBs (like the distance in 3D space where the RGB values of the colors are the
-     * x, y, and z coordinates).
+     * Compute the distance between two RGBs (the distance in 3D space where the RGB values of the colors are the x, y,
+     * and z coordinates).
      *
      * @param first  the first
      * @param second the second
@@ -414,21 +479,6 @@ public class ImageUtil {
         return Math.sqrt(Math.pow(second.red - first.red, 2) +
                          Math.pow(second.green - first.green, 2) +
                          Math.pow(second.blue - first.blue, 2));
-    }
-
-    /**
-     * Average two colors (including alpha channel).
-     *
-     * @param first  the first
-     * @param second the second
-     *
-     * @return the color
-     */
-    public static Color averageColor(Color first, Color second) {
-        return new Color(first.getDevice(), (first.getRed() - second.getRed()) / 2,
-                         (first.getGreen() + second.getGreen()) / 2,
-                         (first.getBlue() + second.getBlue()) / 2,
-                         (first.getAlpha() + second.getAlpha()) / 2);
     }
 
     /**
@@ -468,35 +518,56 @@ public class ImageUtil {
      *
      * @return the boolean
      */
-    public static boolean isGrayColor(Color color, int tolerance) {
-        return Math.abs(color.getRed() - color.getGreen()) <= tolerance &&
-               Math.abs(color.getRed() - color.getBlue()) <= tolerance &&
-               Math.abs(color.getGreen() - color.getBlue()) <= tolerance;
-    }
-
-    /**
-     * Determines if a colors RGB values are within a certain tolerance of each other.
-     *
-     * @param color     the color
-     * @param tolerance the tolerance (RGB channel difference)
-     *
-     * @return the boolean
-     */
-    public static boolean isGrayColor(RGBA color, int tolerance) {
-        return isGrayColor(color.rgb, tolerance);
-    }
-
-    /**
-     * Determines if a colors RGB values are within a certain tolerance of each other.
-     *
-     * @param color     the color
-     * @param tolerance the tolerance (RGB channel difference)
-     *
-     * @return the boolean
-     */
     public static boolean isGrayColor(RGB color, int tolerance) {
         return Math.abs(color.red - color.green) <= tolerance &&
                Math.abs(color.red - color.blue) <= tolerance &&
                Math.abs(color.green - color.blue) <= tolerance;
+    }
+
+    /**
+     * Grayscales a color.
+     *
+     * @param color the color
+     *
+     * @return the grayscaled color RGB
+     */
+    public static RGB grayscale(RGB color) {
+        int average = (color.red + color.green + color.blue) / 3;
+        return new RGB(average, average, average);
+    }
+
+    /**
+     * Clamps the average of the given color to white if it is greater or equal to the threshold and to black if less
+     * than the threshold. Same for the alpha channel.
+     *
+     * @param color          the color
+     * @param colorThreshold the threshold (usually 127)
+     * @param alphaThreshold the alpha threshold (-1 to disable)
+     *
+     * @return the clamped RGBA
+     */
+    public static RGBA clamp(RGBA color, int colorThreshold, int alphaThreshold) {
+        RGB clampedRGB = clamp(color.rgb, colorThreshold);
+        RGBA clampedRGBA = new RGBA(clampedRGB.red, clampedRGB.green, clampedRGB.blue, 0);
+
+        if (alphaThreshold > 0) {
+            clampedRGBA.alpha = color.alpha >= alphaThreshold ? 0b1111_1111 : 0b0000_0000;
+        }
+
+        return clampedRGBA;
+    }
+
+    /**
+     * Clamps the average of the given color to white if it is greater or equal to the threshold and to black if less
+     * than the threshold.
+     *
+     * @param color     the color
+     * @param threshold the threshold (usually 127)
+     *
+     * @return the clamped RGB
+     */
+    public static RGB clamp(RGB color, int threshold) {
+        int clamped = grayscale(color).red >= threshold ? 0b1111_1111 : 0b0000_0000;
+        return new RGB(clamped, clamped, clamped);
     }
 }

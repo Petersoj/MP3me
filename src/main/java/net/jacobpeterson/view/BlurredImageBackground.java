@@ -22,6 +22,7 @@ public class BlurredImageBackground extends Canvas implements PaintListener {
     public BlurredImageBackground(MainShell mainShell) {
         super(mainShell.getShell(), SWT.TRANSPARENT);
 
+        this.setBackground(mainShell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
         this.addPaintListener(this);
     }
 
@@ -38,18 +39,18 @@ public class BlurredImageBackground extends Canvas implements PaintListener {
 
         Rectangle bounds = this.getBounds();
         Rectangle imageBounds = blurredImage.getBounds();
-
         double thisAspectRatio = (double) bounds.width / bounds.height;
         double imageAspectRatio = (double) imageBounds.width / imageBounds.height;
         int imageHeight = bounds.height;
         int imageWidth = bounds.width;
-        if (imageAspectRatio < thisAspectRatio) { // Cut off sides of image
+        if (imageAspectRatio < thisAspectRatio) { // Cut off tops of image
             imageHeight = (int) (bounds.width / imageAspectRatio);
-        } else { // Cut off tops of image
+        } else { // Cut off sides of image
             imageWidth = (int) (bounds.height * imageAspectRatio);
         }
         int imageX = (bounds.width / 2) - (imageWidth / 2);
         int imageY = (bounds.height / 2) - (imageHeight / 2);
+
         gc.drawImage(blurredImage, 0, 0, imageBounds.width, imageBounds.height,
                      imageX, imageY, imageWidth, imageHeight);
     }
