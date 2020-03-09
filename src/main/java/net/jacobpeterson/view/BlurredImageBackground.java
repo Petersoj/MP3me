@@ -52,7 +52,7 @@ public class BlurredImageBackground extends Canvas implements PaintListener {
         int imageY = (bounds.height / 2) - (imageHeight / 2);
 
         gc.drawImage(blurredImage, 0, 0, imageBounds.width, imageBounds.height,
-                     imageX, imageY, imageWidth, imageHeight);
+                imageX, imageY, imageWidth, imageHeight);
     }
 
     /**

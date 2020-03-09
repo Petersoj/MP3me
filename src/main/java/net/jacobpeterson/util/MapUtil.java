@@ -20,7 +20,7 @@ public class MapUtil {
      * @see <a href="https://stackoverflow.com/a/13913206/4352701">https://stackoverflow.com/a/13913206/4352701</a>
      */
     public static <K, V> LinkedHashMap<K, V> sortByValue(Map<K, V> unsortedMap, SortOrder sortOrder,
-                                                         Comparator<K> keyComparator, Comparator<V> valueComparator) {
+            Comparator<K> keyComparator, Comparator<V> valueComparator) {
         List<Map.Entry<K, V>> list = new LinkedList<>(unsortedMap.entrySet());
 
         list.sort((o1, o2) -> {
@@ -42,7 +42,7 @@ public class MapUtil {
         });
 
         return list.stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b,
-                                                      LinkedHashMap::new));
+                LinkedHashMap::new));
     }
 
     enum SortOrder {

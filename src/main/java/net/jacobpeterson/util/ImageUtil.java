@@ -90,14 +90,14 @@ public class ImageUtil {
 
                         // Loop through channels of pixel at absolute kernel coordinate
                         int absoluteKernelChannelStartIndex = (absoluteKernelY * imageData.width + absoluteKernelX)
-                                                              * channels;
+                                * channels;
                         for (int channel = 0; channel < channels; channel++) {
                             int gaussianPixelChannel = (int) (Byte.toUnsignedInt(
                                     imageData.data[absoluteKernelChannelStartIndex + channel]) *
-                                                              kernel[kernelY + kernelHalfWidth]
-                                                                      [kernelX + kernelHalfWidth]);
+                                    kernel[kernelY + kernelHalfWidth]
+                                            [kernelX + kernelHalfWidth]);
                             int finalImageDataChannelIndex = (finalImageY * finalImageData.width + finalImageX)
-                                                             * channels + channel;
+                                    * channels + channel;
                             int finalImageDataChannelInt = (Byte.toUnsignedInt(
                                     finalImageData.data[finalImageDataChannelIndex]) + gaussianPixelChannel);
 
@@ -152,7 +152,7 @@ public class ImageUtil {
         }
         // prepare new image data with 24-bit direct palette to hold blurred copy of image
         ImageData newImageData = new ImageData(originalImageData.width, originalImageData.height, 24,
-                                               new PaletteData(0xFF, 0xFF00, 0xFF0000));
+                new PaletteData(0xFF, 0xFF00, 0xFF0000));
         if (radius >= newImageData.height || radius >= newImageData.width) {
             radius = Math.min(newImageData.height, newImageData.width) - 1;
         }
@@ -189,7 +189,7 @@ public class ImageUtil {
                     numRows++;
                     bottomSumBoundary++; // move bottom scope boundary lower
                     if (bottomSumBoundary < newImageData.height &&
-                        (bottomSumBoundary - cacheStartIndex) > (radius * 2)) {
+                            (bottomSumBoundary - cacheStartIndex) > (radius * 2)) {
                         // grow cache
                         rowCache.add(rowCache.size(), blurRow(originalImageData, bottomSumBoundary, radius));
                     }
@@ -213,8 +213,8 @@ public class ImageUtil {
             // calculate each column's RGB-averaged pixel
             for (int col = 0; col < newImageData.width; col++) {
                 rowRGBAverages[col] = newImageData.palette.getPixel(new RGB(rowRGBSums[col].red / numRows,
-                                                                            rowRGBSums[col].green / numRows,
-                                                                            rowRGBSums[col].blue / numRows));
+                        rowRGBSums[col].green / numRows,
+                        rowRGBSums[col].blue / numRows));
             }
             // replace original pixels
             newImageData.setPixels(0, targetRow, newImageData.width, rowRGBAverages, 0);
@@ -461,9 +461,9 @@ public class ImageUtil {
      */
     public static double colorDistance(RGBA first, RGBA second) {
         return Math.sqrt(Math.pow(second.rgb.red - first.rgb.red, 2) +
-                         Math.pow(second.rgb.green - first.rgb.green, 2) +
-                         Math.pow(second.rgb.blue - first.rgb.blue, 2) +
-                         Math.pow(second.alpha - first.alpha, 2));
+                Math.pow(second.rgb.green - first.rgb.green, 2) +
+                Math.pow(second.rgb.blue - first.rgb.blue, 2) +
+                Math.pow(second.alpha - first.alpha, 2));
     }
 
     /**
@@ -477,8 +477,8 @@ public class ImageUtil {
      */
     public static double colorDistance(RGB first, RGB second) {
         return Math.sqrt(Math.pow(second.red - first.red, 2) +
-                         Math.pow(second.green - first.green, 2) +
-                         Math.pow(second.blue - first.blue, 2));
+                Math.pow(second.green - first.green, 2) +
+                Math.pow(second.blue - first.blue, 2));
     }
 
     /**
@@ -491,9 +491,9 @@ public class ImageUtil {
      */
     public static RGBA averageColor(RGBA first, RGBA second) {
         return new RGBA((first.rgb.red + second.rgb.red) / 2,
-                        (first.rgb.green + second.rgb.green) / 2,
-                        (first.rgb.blue + second.rgb.blue) / 2,
-                        (first.alpha + second.alpha) / 2);
+                (first.rgb.green + second.rgb.green) / 2,
+                (first.rgb.blue + second.rgb.blue) / 2,
+                (first.alpha + second.alpha) / 2);
     }
 
     /**
@@ -506,8 +506,8 @@ public class ImageUtil {
      */
     public static RGB averageColor(RGB first, RGB second) {
         return new RGB((first.red + second.red) / 2,
-                       (first.green + second.green) / 2,
-                       (first.blue + second.blue) / 2);
+                (first.green + second.green) / 2,
+                (first.blue + second.blue) / 2);
     }
 
     /**
@@ -520,8 +520,8 @@ public class ImageUtil {
      */
     public static boolean isGrayColor(RGB color, int tolerance) {
         return Math.abs(color.red - color.green) <= tolerance &&
-               Math.abs(color.red - color.blue) <= tolerance &&
-               Math.abs(color.green - color.blue) <= tolerance;
+                Math.abs(color.red - color.blue) <= tolerance &&
+                Math.abs(color.green - color.blue) <= tolerance;
     }
 
     /**
