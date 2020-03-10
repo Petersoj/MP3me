@@ -86,7 +86,7 @@ public class MainShell {
         shell.setSize(shellWidth, shellHeight);
         shell.setLocation((monitorBounds.width / 2) - (shellWidth / 2) + monitorBounds.x,
                 (monitorBounds.height / 2) - (shellHeight / 2) + monitorBounds.y);
-        shell.setMinimumSize(500, 400);
+        shell.setMinimumSize(650, 400);
         shell.setLayout(formLayout);
 
         // Set background transparent for all components
@@ -107,7 +107,7 @@ public class MainShell {
         blurredImageBackground.setLayoutData(blurredImageBackgroundFormData);
 
         // Testing:
-        blurredImageBackground.setBlurredImage(new Image(display, "/Users/Jacob/Downloads/Untitled-1.png"), 20);
+        blurredImageBackground.setBlurredImage(new Image(display, "/Users/Jacob/Downloads/stoney.jpg"), 20);
 
         songList = new SongList(this);
         songListBackground = songList.new SongListBackground();

@@ -20,7 +20,7 @@ public class BlurredImageBackground extends Canvas implements PaintListener {
      * @param mainShell the main shell
      */
     public BlurredImageBackground(MainShell mainShell) {
-        super(mainShell.getShell(), SWT.TRANSPARENT);
+        super(mainShell.getShell(), SWT.NONE);
 
         this.setBackground(mainShell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
         this.addPaintListener(this);
