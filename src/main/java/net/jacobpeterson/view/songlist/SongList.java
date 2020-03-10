@@ -3,7 +3,6 @@ package net.jacobpeterson.view.songlist;
 import net.jacobpeterson.util.GraphicsUtil;
 import net.jacobpeterson.view.MainShell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.PaintEvent;
@@ -11,12 +10,10 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
-public class SongList extends ScrolledComposite {
+public class SongList extends Composite {
 
     private final MainShell mainShell;
     private final int roundRectangleArcSize;
@@ -27,29 +24,10 @@ public class SongList extends ScrolledComposite {
      * @param mainShell the main shell
      */
     public SongList(MainShell mainShell) {
-        super(mainShell.getShell(), SWT.H_SCROLL | SWT.V_SCROLL);
+        super(mainShell.getShell(), SWT.TRANSPARENT);
 
         this.mainShell = mainShell;
         this.roundRectangleArcSize = 30;
-        // Create a child composite to hold the controls
-        Composite child = new Composite(this, SWT.NONE);
-        child.setLayout(new FillLayout());
-
-        // Create the buttons
-        new Button(child, SWT.PUSH).setText("One");
-        new Button(child, SWT.PUSH).setText("Two");
-        /*
-         * // Set the absolute size of the child child.setSize(400, 400);
-         */
-        // Set the child as the scrolled content of the ScrolledComposite
-        this.setContent(child);
-
-        // Set the minimum size
-        this.setMinSize(400, 400);
-
-        // Expand both horizontally and vertically
-        this.setExpandHorizontal(true);
-        this.setExpandVertical(true);
 
         this.addControlListener(new ControlAdapter() {
             @Override
