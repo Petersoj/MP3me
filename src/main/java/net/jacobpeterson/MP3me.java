@@ -1,23 +1,21 @@
 package net.jacobpeterson;
 
-import net.jacobpeterson.view.MainShell;
+import javafx.application.Application;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 
-public class MP3me {
+public class MP3me extends Application {
 
-    private MainShell mainShell;
+    public void start(Stage stage) {
+        Circle circ = new Circle(40, 40, 30);
+        Group root = new Group(circ);
+        Scene scene = new Scene(root, 400, 300);
 
-    /**
-     * Instantiates a new MP3me.
-     */
-    public MP3me() {
-        mainShell = new MainShell(this);
-    }
-
-    /**
-     * Start MP3me.
-     */
-    public void start() {
-        mainShell.start();
+        stage.setTitle("Test");
+        stage.setScene(scene);
+        stage.show();
     }
 
     /**
@@ -26,7 +24,6 @@ public class MP3me {
      * @param args the input arguments
      */
     public static void main(String[] args) {
-        MP3me mp3me = new MP3me();
-        mp3me.start();
+        launch(args);
     }
 }

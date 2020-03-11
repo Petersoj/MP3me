@@ -1,6 +1,7 @@
 module mp3me {
     requires java.sql;
     requires gson;
-    requires swt;
+    requires javafx.controls;
+
     exports net.jacobpeterson;
 }
