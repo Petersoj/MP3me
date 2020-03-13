@@ -1,21 +1,26 @@
 package net.jacobpeterson;
 
 import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import net.jacobpeterson.view.MainView;
 
 public class MP3me extends Application {
 
-    public void start(Stage stage) {
-        Circle circ = new Circle(40, 40, 30);
-        Group root = new Group(circ);
-        Scene scene = new Scene(root, 400, 300);
+    private MainView mainView;
 
-        stage.setTitle("Test");
-        stage.setScene(scene);
-        stage.show();
+    @Override
+    public void init() {
+        mainView = new MainView(this);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        mainView.start(primaryStage);
+    }
+
+    @Override
+    public void stop() {
+
     }
 
     /**
@@ -24,6 +29,6 @@ public class MP3me extends Application {
      * @param args the input arguments
      */
     public static void main(String[] args) {
-        launch(args);
+        launch();
     }
 }
