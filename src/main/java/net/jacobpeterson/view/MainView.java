@@ -39,7 +39,8 @@ public class MainView {
         this.gridPane = new GridPane();
         this.scene = new Scene(gridPane);
 
-        this.setupStageAndScene();
+        this.setupStage();
+        this.setupScene();
         this.setupNodes();
 
         stage.show();
@@ -48,9 +49,8 @@ public class MainView {
     /**
      * Sets up the stage.
      */
-    private void setupStageAndScene() {
-        // Setup stage
-
+    private void setupStage() {
+        // Open stage centered on moused over monitor
         Point2D mousePosition = new Robot().getMousePosition();
         for (Screen screen : Screen.getScreens()) {
             Rectangle2D visualBounds = screen.getVisualBounds();
@@ -64,32 +64,58 @@ public class MainView {
             }
         }
 
-        stage.setMinWidth(650);
-        stage.setMinHeight(400);
+        stage.setMinWidth(600);
+        stage.setMinHeight(450);
         stage.setTitle("");
         stage.setScene(scene);
+    }
 
-        // Setup scene
+    /**
+     * Sets up the scene.
+     */
+    public void setupScene() {
         scene.setFill(Color.BLACK);
 
-        RowConstraints rowConstraints = new RowConstraints();
-        rowConstraints.setVgrow(Priority.ALWAYS);
+        final double marginSizePercent = 3.5;
 
-        ColumnConstraints columnConstraints = new ColumnConstraints();
-        columnConstraints.setHgrow(Priority.ALWAYS);
+        ColumnConstraints marginColumn = new ColumnConstraints();
+        marginColumn.setHgrow(Priority.NEVER);
+        marginColumn.setFillWidth(true);
+        marginColumn.setPercentWidth(marginSizePercent);
 
-        gridPane.getColumnConstraints().add(columnConstraints);
-        gridPane.getRowConstraints().add(rowConstraints);
+        ColumnConstraints songListColumn = new ColumnConstraints();
+        songListColumn.setHgrow(Priority.ALWAYS);
+        songListColumn.setFillWidth(true);
+        songListColumn.setPercentWidth(25);
+
+        ColumnConstraints songEditorColumn = new ColumnConstraints();
+        songEditorColumn.setHgrow(Priority.ALWAYS);
+        songEditorColumn.setFillWidth(true);
+        songEditorColumn.setPercentWidth(64.5);
+
+        gridPane.getColumnConstraints().addAll(marginColumn, songListColumn, marginColumn,
+                songEditorColumn, marginColumn);
+
+        RowConstraints marginRow = new RowConstraints();
+        marginRow.setVgrow(Priority.NEVER);
+        marginRow.setFillHeight(true);
+        gridPane.layoutBoundsProperty().addListener((observable, oldValue, newValue) ->
+                marginRow.setPrefHeight(newValue.getWidth() * marginSizePercent / 100));
+
+        RowConstraints contentRow = new RowConstraints();
+        contentRow.setVgrow(Priority.ALWAYS);
+        contentRow.setFillHeight(true);
+
+        gridPane.getRowConstraints().addAll(marginRow, contentRow, marginRow);
     }
 
     /**
      * Sets up the nodes.
      */
     private void setupNodes() {
-        BlurredBackgroundImage blurredBackgroundImage = new BlurredBackgroundImage(this);
-
-        gridPane.add(blurredBackgroundImage, 0, 0);
-        gridPane.layoutBoundsProperty().addListener(blurredBackgroundImage);
+        BlurredBackgroundImage blurredBackgroundImage = new BlurredBackgroundImage();
+        gridPane.add(blurredBackgroundImage, 0, 0, gridPane.getColumnCount(), gridPane.getRowCount());
+        blurredBackgroundImage.toBack();
     }
 
     /**
