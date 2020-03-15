@@ -10,6 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 
 public class BlurredBackgroundImage extends Pane implements ChangeListener<Bounds> {
@@ -21,22 +22,24 @@ public class BlurredBackgroundImage extends Pane implements ChangeListener<Bound
      * Instantiates a new Blurred background image.
      */
     public BlurredBackgroundImage() {
-        this.canvas = new Canvas();
+        canvas = new Canvas();
 
+        this.setBackground(Background.EMPTY);
         this.getChildren().add(canvas);
         this.layoutBoundsProperty().addListener(this);
     }
 
     @Override
     public void changed(ObservableValue<? extends Bounds> observableBounds, Bounds oldBounds, Bounds newBounds) {
-        if (blurredImage == null) {
-            return;
-        }
-
         canvas.setWidth(newBounds.getWidth());
         canvas.setHeight(newBounds.getHeight());
 
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+
+        if (blurredImage == null || blurredImage.isError()) {
+            graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            return;
+        }
 
         // The following is basically applying the "background-size: cover" CSS equivalent for this canvas
         double thisAspectRatio = newBounds.getWidth() / newBounds.getHeight();
@@ -62,15 +65,20 @@ public class BlurredBackgroundImage extends Pane implements ChangeListener<Bound
      * @param blurRadius the blur radius (null or -1 for no blur)
      */
     public void setBlurredImage(Image image, Integer blurRadius) {
+        if (image == null || image.isError()) {
+            blurredImage = null;
+            return;
+        }
+
         if (blurRadius < 1) {
-            this.blurredImage = image;
+            blurredImage = image;
         } else {
             ImageView imageView = new ImageView(image);
             imageView.setEffect(new GaussianBlur(blurRadius));
             SnapshotParameters snapshotParameters = new SnapshotParameters();
             snapshotParameters.setViewport(new Rectangle2D(blurRadius, blurRadius,
                     image.getWidth() - blurRadius * 2, image.getHeight() - blurRadius * 2));
-            this.blurredImage = imageView.snapshot(snapshotParameters, null);
+            blurredImage = imageView.snapshot(snapshotParameters, null);
         }
     }
 }

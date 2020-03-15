@@ -3,6 +3,8 @@ package net.jacobpeterson.view;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -12,13 +14,16 @@ import javafx.scene.robot.Robot;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.jacobpeterson.MP3me;
+import net.jacobpeterson.view.songlist.SongList;
 
 public class MainView {
 
-    private MP3me mp3me;
+    private final MP3me mp3me;
     private Stage stage;
     private GridPane gridPane;
     private Scene scene;
+    private BlurredBackgroundImage blurredBackgroundImage;
+    private SongList songList;
 
     /**
      * Instantiates a new Main scene.
@@ -32,16 +37,16 @@ public class MainView {
     /**
      * Starts the MainScene.
      *
-     * @param stage the stage
+     * @param primaryStage the primaryStage
      */
-    public void start(Stage stage) {
-        this.stage = stage;
-        this.gridPane = new GridPane();
-        this.scene = new Scene(gridPane);
+    public void start(Stage primaryStage) {
+        stage = primaryStage;
+        gridPane = new GridPane();
+        scene = new Scene(gridPane);
 
         this.setupStage();
         this.setupScene();
-        this.setupNodes();
+        this.setupControls();
 
         stage.show();
     }
@@ -75,6 +80,8 @@ public class MainView {
      */
     public void setupScene() {
         scene.setFill(Color.BLACK);
+
+        gridPane.setBackground(Background.EMPTY);
 
         final double marginSizePercent = 3.5;
 
@@ -110,12 +117,17 @@ public class MainView {
     }
 
     /**
-     * Sets up the nodes.
+     * Sets up the controls.
      */
-    private void setupNodes() {
-        BlurredBackgroundImage blurredBackgroundImage = new BlurredBackgroundImage();
+    private void setupControls() {
+        blurredBackgroundImage = new BlurredBackgroundImage();
         gridPane.add(blurredBackgroundImage, 0, 0, gridPane.getColumnCount(), gridPane.getRowCount());
-        blurredBackgroundImage.toBack();
+
+        songList = new SongList(this);
+        gridPane.add(songList, 1, 1);
+
+        // Testing:
+        blurredBackgroundImage.setBlurredImage(new Image("file:/Users/Jacob/Downloads/stoney.jpg"), 30);
     }
 
     /**
@@ -152,5 +164,23 @@ public class MainView {
      */
     public Scene getScene() {
         return scene;
+    }
+
+    /**
+     * Gets blurred background image.
+     *
+     * @return the blurred background image
+     */
+    public BlurredBackgroundImage getBlurredBackgroundImage() {
+        return blurredBackgroundImage;
+    }
+
+    /**
+     * Gets song list.
+     *
+     * @return the song list
+     */
+    public SongList getSongList() {
+        return songList;
     }
 }
