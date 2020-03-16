@@ -2,10 +2,8 @@ package net.jacobpeterson.view.songlist;
 
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import net.jacobpeterson.view.MainView;
 
@@ -32,11 +30,11 @@ public class SongList extends StackPane {
      * Sets up this pane.
      */
     private void setupPane() {
-        this.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.3), null, null)));
+        this.setBackground(mainView.getGlassBackground());
 
         Rectangle roundRectangle = new Rectangle();
-        roundRectangle.setArcWidth(50);
-        roundRectangle.setArcHeight(50);
+        roundRectangle.setArcWidth(mainView.getRoundRectangleArcSize());
+        roundRectangle.setArcHeight(mainView.getRoundRectangleArcSize());
         this.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
             roundRectangle.setWidth(newValue.getWidth());
             roundRectangle.setHeight(newValue.getHeight());

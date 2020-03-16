@@ -5,6 +5,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -19,9 +20,14 @@ import net.jacobpeterson.view.songlist.SongList;
 public class MainView {
 
     private final MP3me mp3me;
+
+    private Background glassBackground;
+    private double roundRectangleArcSize;
+
     private Stage stage;
     private GridPane gridPane;
     private Scene scene;
+
     private BlurredBackgroundImage blurredBackgroundImage;
     private SongList songList;
 
@@ -44,11 +50,20 @@ public class MainView {
         gridPane = new GridPane();
         scene = new Scene(gridPane);
 
+        this.setupDefaults();
         this.setupStage();
         this.setupScene();
         this.setupControls();
 
         stage.show();
+    }
+
+    /**
+     * Sets up the defaults.
+     */
+    private void setupDefaults() {
+        glassBackground = new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.3), null, null));
+        roundRectangleArcSize = 50;
     }
 
     /**
@@ -83,22 +98,19 @@ public class MainView {
 
         gridPane.setBackground(Background.EMPTY);
 
-        final double marginSizePercent = 3.5;
-
         ColumnConstraints marginColumn = new ColumnConstraints();
         marginColumn.setHgrow(Priority.NEVER);
         marginColumn.setFillWidth(true);
-        marginColumn.setPercentWidth(marginSizePercent);
+        marginColumn.setPercentWidth(3.5);
 
         ColumnConstraints songListColumn = new ColumnConstraints();
-        songListColumn.setHgrow(Priority.ALWAYS);
+        songListColumn.setHgrow(Priority.NEVER);
         songListColumn.setFillWidth(true);
         songListColumn.setPercentWidth(25);
 
         ColumnConstraints songEditorColumn = new ColumnConstraints();
         songEditorColumn.setHgrow(Priority.ALWAYS);
         songEditorColumn.setFillWidth(true);
-        songEditorColumn.setPercentWidth(64.5);
 
         gridPane.getColumnConstraints().addAll(marginColumn, songListColumn, marginColumn,
                 songEditorColumn, marginColumn);
@@ -107,7 +119,7 @@ public class MainView {
         marginRow.setVgrow(Priority.NEVER);
         marginRow.setFillHeight(true);
         gridPane.layoutBoundsProperty().addListener((observable, oldValue, newValue) ->
-                marginRow.setPrefHeight(newValue.getWidth() * marginSizePercent / 100));
+                marginRow.setPrefHeight(newValue.getWidth() * marginColumn.getPercentWidth() / 100));
 
         RowConstraints contentRow = new RowConstraints();
         contentRow.setVgrow(Priority.ALWAYS);
@@ -127,7 +139,7 @@ public class MainView {
         gridPane.add(songList, 1, 1);
 
         // Testing:
-        blurredBackgroundImage.setBlurredImage(new Image("file:/Users/Jacob/Downloads/stoney.jpg"), 30);
+        blurredBackgroundImage.setBlurredImage(new Image("file:/Users/Jacob/Downloads/hb.png"), 30);
     }
 
     /**
@@ -137,6 +149,24 @@ public class MainView {
      */
     public MP3me getMP3me() {
         return mp3me;
+    }
+
+    /**
+     * Gets glass background.
+     *
+     * @return the glass background
+     */
+    public Background getGlassBackground() {
+        return glassBackground;
+    }
+
+    /**
+     * Gets round rectangle arc size.
+     *
+     * @return the round rectangle arc size
+     */
+    public double getRoundRectangleArcSize() {
+        return roundRectangleArcSize;
     }
 
     /**

@@ -57,9 +57,7 @@
 }
 
 .scroll-bar:horizontal .thumb:hover,
-.scroll-bar:vertical .thumb:hover,
-.scroll-bar:horizontal .thumb:armed,
-.scroll-bar:vertical .thumb:armed {
+.scroll-bar:vertical .thumb:hover {
     -fx-background-color: derive(#4D4C4F, 10.0%);
     -fx-background-insets: 2.0, 0.0, 0.0;
     -fx-background-radius: 2.0em;

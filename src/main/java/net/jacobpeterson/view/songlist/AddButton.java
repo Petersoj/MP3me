@@ -2,5 +2,6 @@ package net.jacobpeterson.view.songlist;
 
 import javafx.scene.layout.StackPane;
 
-public class SongListItem extends StackPane {
+public class AddButton extends StackPane {
+
 }
