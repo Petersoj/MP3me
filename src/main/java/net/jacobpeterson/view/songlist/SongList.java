@@ -1,5 +1,6 @@
 package net.jacobpeterson.view.songlist;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
@@ -12,6 +13,7 @@ public class SongList extends StackPane {
     private final MainView mainView;
     private VBox scrollPaneContent;
     private ScrollPane scrollPane;
+    private AddButton addButton;
 
     /**
      * Instantiates a new Song list.
@@ -21,9 +23,10 @@ public class SongList extends StackPane {
     public SongList(MainView mainView) {
         this.mainView = mainView;
 
+        this.setupPane();
         this.setupScrollPaneContent();
         this.setupScrollPane();
-        this.setupPane();
+        this.setupAddButton();
     }
 
     /**
@@ -32,16 +35,16 @@ public class SongList extends StackPane {
     private void setupPane() {
         this.setBackground(mainView.getGlassBackground());
 
-        Rectangle roundRectangle = new Rectangle();
-        roundRectangle.setArcWidth(mainView.getRoundRectangleArcSize());
-        roundRectangle.setArcHeight(mainView.getRoundRectangleArcSize());
+        Rectangle clip = new Rectangle();
+        clip.setArcWidth(mainView.getRoundRectangleArcSize());
+        clip.setArcHeight(mainView.getRoundRectangleArcSize());
         this.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
-            roundRectangle.setWidth(newValue.getWidth());
-            roundRectangle.setHeight(newValue.getHeight());
+            clip.setWidth(newValue.getWidth());
+            clip.setHeight(newValue.getHeight());
         });
-        this.setClip(roundRectangle);
+        this.setClip(clip);
 
-        this.getChildren().add(scrollPane);
+        this.setAlignment(Pos.BOTTOM_RIGHT);
     }
 
     /**
@@ -60,6 +63,21 @@ public class SongList extends StackPane {
         scrollPane.getStylesheets().add(getClass().getResource("/css/CustomScrollPane.css").toExternalForm());
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        this.getChildren().add(scrollPane);
+    }
+
+    private void setupAddButton() {
+        addButton = new AddButton();
+
+        double size = 30;
+        double translate = mainView.getRoundRectangleArcSize() - size;
+
+        addButton.setMaxSize(size, size);
+        addButton.setTranslateX(-translate);
+        addButton.setTranslateY(-translate);
+
+        this.getChildren().add(addButton);
     }
 
     /**

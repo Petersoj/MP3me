@@ -100,30 +100,25 @@ public class MainView {
 
         ColumnConstraints marginColumn = new ColumnConstraints();
         marginColumn.setHgrow(Priority.NEVER);
-        marginColumn.setFillWidth(true);
         marginColumn.setPercentWidth(3.5);
 
         ColumnConstraints songListColumn = new ColumnConstraints();
         songListColumn.setHgrow(Priority.NEVER);
-        songListColumn.setFillWidth(true);
-        songListColumn.setPercentWidth(25);
+        songListColumn.setPercentWidth(22.5);
 
         ColumnConstraints songEditorColumn = new ColumnConstraints();
         songEditorColumn.setHgrow(Priority.ALWAYS);
-        songEditorColumn.setFillWidth(true);
 
         gridPane.getColumnConstraints().addAll(marginColumn, songListColumn, marginColumn,
                 songEditorColumn, marginColumn);
 
         RowConstraints marginRow = new RowConstraints();
         marginRow.setVgrow(Priority.NEVER);
-        marginRow.setFillHeight(true);
         gridPane.layoutBoundsProperty().addListener((observable, oldValue, newValue) ->
                 marginRow.setPrefHeight(newValue.getWidth() * marginColumn.getPercentWidth() / 100));
 
         RowConstraints contentRow = new RowConstraints();
         contentRow.setVgrow(Priority.ALWAYS);
-        contentRow.setFillHeight(true);
 
         gridPane.getRowConstraints().addAll(marginRow, contentRow, marginRow);
     }
@@ -132,14 +127,15 @@ public class MainView {
      * Sets up the controls.
      */
     private void setupControls() {
-        blurredBackgroundImage = new BlurredBackgroundImage();
+        blurredBackgroundImage = new BlurredBackgroundImage(this);
         gridPane.add(blurredBackgroundImage, 0, 0, gridPane.getColumnCount(), gridPane.getRowCount());
 
         songList = new SongList(this);
         gridPane.add(songList, 1, 1);
 
         // Testing:
-        blurredBackgroundImage.setBlurredImage(new Image("file:/Users/Jacob/Downloads/hb.png"), 30);
+        blurredBackgroundImage.setBlurredImage(new Image("file:/Users/jacob/Documents/Code/Java/MP3me/assets/Logo.png"),
+                30);
     }
 
     /**

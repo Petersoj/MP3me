@@ -15,18 +15,38 @@ import javafx.scene.layout.Pane;
 
 public class BlurredBackgroundImage extends Pane implements ChangeListener<Bounds> {
 
+    private final MainView mainView;
     private Canvas canvas;
     private Image blurredImage;
 
     /**
      * Instantiates a new Blurred background image.
+     *
+     * @param mainView the main view
      */
-    public BlurredBackgroundImage() {
+    public BlurredBackgroundImage(MainView mainView) {
+        this.mainView = mainView;
+
+        this.setupPane();
+        this.setupCanvas();
+    }
+
+    /**
+     * Sets up this pane.
+     */
+    private void setupPane() {
+        this.setBackground(Background.EMPTY);
+
+        this.layoutBoundsProperty().addListener(this);
+    }
+
+    /**
+     * Sets up the canvas.
+     */
+    private void setupCanvas() {
         canvas = new Canvas();
 
-        this.setBackground(Background.EMPTY);
         this.getChildren().add(canvas);
-        this.layoutBoundsProperty().addListener(this);
     }
 
     @Override
@@ -76,6 +96,7 @@ public class BlurredBackgroundImage extends Pane implements ChangeListener<Bound
             ImageView imageView = new ImageView(image);
             imageView.setEffect(new GaussianBlur(blurRadius));
             SnapshotParameters snapshotParameters = new SnapshotParameters();
+            snapshotParameters.setFill(mainView.getScene().getFill());
             snapshotParameters.setViewport(new Rectangle2D(blurRadius, blurRadius,
                     image.getWidth() - blurRadius * 2, image.getHeight() - blurRadius * 2));
             blurredImage = imageView.snapshot(snapshotParameters, null);
