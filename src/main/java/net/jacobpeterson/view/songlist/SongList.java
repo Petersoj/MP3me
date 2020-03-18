@@ -38,9 +38,9 @@ public class SongList extends StackPane {
         Rectangle clip = new Rectangle();
         clip.setArcWidth(mainView.getRoundRectangleArcSize());
         clip.setArcHeight(mainView.getRoundRectangleArcSize());
-        this.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
-            clip.setWidth(newValue.getWidth());
-            clip.setHeight(newValue.getHeight());
+        this.layoutBoundsProperty().addListener((observable, oldBounds, newBounds) -> {
+            clip.setWidth(newBounds.getWidth());
+            clip.setHeight(newBounds.getHeight());
         });
         this.setClip(clip);
 
@@ -53,6 +53,12 @@ public class SongList extends StackPane {
     private void setupScrollPaneContent() {
         scrollPaneContent = new VBox();
         scrollPaneContent.setBackground(Background.EMPTY);
+        scrollPaneContent.setFillWidth(true);
+
+        SongListItem songListItem = new SongListItem(this);
+        songListItem.setPrefHeight(125);
+        songListItem.setGridLinesVisible(true);
+        scrollPaneContent.getChildren().add(songListItem);
     }
 
     /**
@@ -63,6 +69,8 @@ public class SongList extends StackPane {
         scrollPane.getStylesheets().add(getClass().getResource("/css/CustomScrollPane.css").toExternalForm());
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.viewportBoundsProperty().addListener((observable, oldBounds, newBounds) ->
+                scrollPaneContent.setPrefWidth(newBounds.getWidth()));
 
         this.getChildren().add(scrollPane);
     }

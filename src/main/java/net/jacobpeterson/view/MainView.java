@@ -41,7 +41,7 @@ public class MainView {
     }
 
     /**
-     * Starts the MainScene.
+     * Starts the MainScene. JavaFX objects must be created within this method and not in the constructor.
      *
      * @param primaryStage the primaryStage
      */
@@ -53,7 +53,8 @@ public class MainView {
         this.setupDefaults();
         this.setupStage();
         this.setupScene();
-        this.setupControls();
+        this.setupBlurredBackgroundImage();
+        this.setupSongList();
 
         stage.show();
     }
@@ -93,11 +94,12 @@ public class MainView {
     /**
      * Sets up the scene.
      */
-    public void setupScene() {
+    private void setupScene() {
         scene.setFill(Color.BLACK);
 
         gridPane.setBackground(Background.EMPTY);
 
+        // Column constraints
         ColumnConstraints marginColumn = new ColumnConstraints();
         marginColumn.setHgrow(Priority.NEVER);
         marginColumn.setPercentWidth(3.5);
@@ -112,10 +114,11 @@ public class MainView {
         gridPane.getColumnConstraints().addAll(marginColumn, songListColumn, marginColumn,
                 songEditorColumn, marginColumn);
 
+        // Row constraints
         RowConstraints marginRow = new RowConstraints();
         marginRow.setVgrow(Priority.NEVER);
-        gridPane.layoutBoundsProperty().addListener((observable, oldValue, newValue) ->
-                marginRow.setPrefHeight(newValue.getWidth() * marginColumn.getPercentWidth() / 100));
+        gridPane.layoutBoundsProperty().addListener((observable, oldBounds, newBounds) ->
+                marginRow.setPrefHeight(newBounds.getWidth() * marginColumn.getPercentWidth() / 100));
 
         RowConstraints contentRow = new RowConstraints();
         contentRow.setVgrow(Priority.ALWAYS);
@@ -124,18 +127,21 @@ public class MainView {
     }
 
     /**
-     * Sets up the controls.
+     * Sets up the blurred background image.
      */
-    private void setupControls() {
+    private void setupBlurredBackgroundImage() {
         blurredBackgroundImage = new BlurredBackgroundImage(this);
+        blurredBackgroundImage.setBlurredImage(new Image(this.getClass()
+                .getResourceAsStream("/assets/logo_full.png")), 30);
         gridPane.add(blurredBackgroundImage, 0, 0, gridPane.getColumnCount(), gridPane.getRowCount());
+    }
 
+    /**
+     * Sets up the song list.
+     */
+    private void setupSongList() {
         songList = new SongList(this);
         gridPane.add(songList, 1, 1);
-
-        // Testing:
-        blurredBackgroundImage.setBlurredImage(new Image("file:/Users/jacob/Documents/Code/Java/MP3me/assets/Logo.png"),
-                30);
     }
 
     /**

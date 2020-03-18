@@ -2,7 +2,9 @@ package net.jacobpeterson.view.songlist;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.StackPane;
@@ -10,17 +12,17 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
-public class AddButton extends StackPane implements ChangeListener<Bounds> {
+public class AddButton extends StackPane implements ChangeListener<Bounds>, EventHandler<MouseEvent> {
 
-    private Circle clip;
+    private final Circle clip;
 
-    private Background background;
-    private Background hoverBackground;
+    private final Background background;
+    private final Background hoverBackground;
 
-    private double plusSignSizePercentage;
-    private double plusSignMarginPercentage;
-    private Rectangle plusSignVertical;
-    private Rectangle plusSignHorizontal;
+    private final double plusSignSizePercentage;
+    private final double plusSignMarginPercentage;
+    private final Rectangle plusSignVertical;
+    private final Rectangle plusSignHorizontal;
 
     /**
      * Instantiates a new Add button.
@@ -48,6 +50,7 @@ public class AddButton extends StackPane implements ChangeListener<Bounds> {
         this.setBackground(background);
         this.setOnMouseEntered(event -> this.setBackground(hoverBackground));
         this.setOnMouseExited(event -> this.setBackground(background));
+        this.setOnMouseClicked(this);
 
         this.layoutBoundsProperty().addListener(this);
 
@@ -76,5 +79,10 @@ public class AddButton extends StackPane implements ChangeListener<Bounds> {
         plusSignHorizontal.setHeight(plusSignSize);
         plusSignHorizontal.setX(newBounds.getCenterX() - plusSignHorizontal.getWidth() / 2);
         plusSignHorizontal.setY(clip.getCenterY() - plusSignHorizontal.getHeight() / 2);
+    }
+
+    @Override
+    public void handle(MouseEvent event) {
+        // TODO
     }
 }

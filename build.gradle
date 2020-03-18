@@ -90,14 +90,14 @@ jlink {
         // Set OS-specific options
         String iconPath
         if (os == OS.MAC) {
-            iconPath = "assets" + File.separator + "Logo.icns"
+            iconPath = "assets" + File.separator + "logo.icns"
             skipInstaller = true // Just generate a .app image
         } else if (os == OS.WINDOWS) {
-            iconPath = "assets" + File.separator + "Logo.ico"
+            iconPath = "assets" + File.separator + "logo.ico"
             installerType = jpackageInstallerExtension = "exe"
             installerOptions = ["--win-per-user-install", "--win-menu", "--win-shortcut"]
         } else if (os == OS.LINUX) {
-            iconPath = "assets" + File.separator + "Logo.png"
+            iconPath = "assets" + File.separator + "logo.png"
             skipInstaller = true // Just generate an image/shell script
         }
 
