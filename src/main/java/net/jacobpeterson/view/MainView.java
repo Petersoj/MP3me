@@ -132,7 +132,7 @@ public class MainView {
     private void setupBlurredBackgroundImage() {
         blurredBackgroundImage = new BlurredBackgroundImage(this);
         blurredBackgroundImage.setBlurredImage(new Image(this.getClass()
-                .getResourceAsStream("/assets/logo_full.png")), 30);
+                .getResourceAsStream("/logo/logo_full.png")), 30);
         gridPane.add(blurredBackgroundImage, 0, 0, gridPane.getColumnCount(), gridPane.getRowCount());
     }
 

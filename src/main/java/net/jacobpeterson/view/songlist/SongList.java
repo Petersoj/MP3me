@@ -2,11 +2,13 @@ package net.jacobpeterson.view.songlist;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import net.jacobpeterson.view.MainView;
+import net.jacobpeterson.view.songlist.item.SongListItem;
 
 public class SongList extends StackPane {
 
@@ -56,8 +58,9 @@ public class SongList extends StackPane {
         scrollPaneContent.setFillWidth(true);
 
         SongListItem songListItem = new SongListItem(this);
-        songListItem.setPrefHeight(125);
-        songListItem.setGridLinesVisible(true);
+        songListItem.setPrefHeight(115);
+        songListItem.setAlbumArtImage(new Image("file:/Users/Jacob/Downloads/stoney.jpg"));
+        songListItem.activeProperty().set(true);
         scrollPaneContent.getChildren().add(songListItem);
     }
 
