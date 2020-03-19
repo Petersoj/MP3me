@@ -57,10 +57,12 @@ public class SongList extends StackPane {
         scrollPaneContent.setBackground(Background.EMPTY);
         scrollPaneContent.setFillWidth(true);
 
+        // Testing:
         SongListItem songListItem = new SongListItem(this);
         songListItem.setPrefHeight(115);
         songListItem.setAlbumArtImage(new Image("file:/Users/Jacob/Downloads/stoney.jpg"));
         songListItem.activeProperty().set(true);
+        songListItem.getArtist().setText("Artist");
         scrollPaneContent.getChildren().add(songListItem);
     }
 

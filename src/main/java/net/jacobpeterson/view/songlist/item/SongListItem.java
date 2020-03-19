@@ -47,8 +47,8 @@ public class SongListItem extends GridPane {
     public SongListItem(SongList songList) {
         this.songList = songList;
 
-        hoverBackground = new Background(new BackgroundFill(Color.grayRgb(0, 0.2), null, null));
-        activeBackground = new Background(new BackgroundFill(Color.grayRgb(0, 0.4), null, null));
+        hoverBackground = new Background(new BackgroundFill(Color.grayRgb(0, 0.3), null, null));
+        activeBackground = new Background(new BackgroundFill(Color.grayRgb(0, 0.6), null, null));
         emptyAlbumArtBackground = new Background(new BackgroundImage(new Image(this.getClass()
                 .getResourceAsStream("/logo/logo_empty.png")),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
@@ -84,6 +84,8 @@ public class SongListItem extends GridPane {
                 this.setBackground(Background.EMPTY);
             }
         });
+
+        this.setPrefHeight(115);
 
         // Column constraints
         ColumnConstraints marginColumn = new ColumnConstraints();
@@ -128,7 +130,15 @@ public class SongListItem extends GridPane {
      */
     private void setupProgressBar() {
         progressBar = new Rectangle();
+        progressBar.setFill(Color.grayRgb(255, 0.15));
+        progressBar.setX(0);
+        progressBar.setY(0);
+        this.layoutBoundsProperty().addListener((observable, oldBounds, newBounds) -> {
+            progressBar.setWidth(newBounds.getWidth() * progressBarPercentageProperty.get() / 100);
+            progressBar.setHeight(newBounds.getHeight());
+        });
 
+        this.add(progressBar, 0, 0, this.getColumnCount() - 1, this.getRowCount() - 1);
     }
 
     /**
